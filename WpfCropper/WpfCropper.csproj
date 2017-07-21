@@ -95,7 +95,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="sampleImages\sample.jpeg" />
   </ItemGroup>

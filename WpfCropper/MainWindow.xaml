@@ -6,18 +6,18 @@
         xmlns:local="clr-namespace:WpfCropper"
         
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="845.556" Loaded="Window_Loaded">
+        Title="MainWindow" Height="450" Width="1000" Loaded="Window_Loaded">
 
         <Grid x:Name="Gridimage1">
-            <Image Name="image1" Grid.Column="0" Height="317" Width="331" HorizontalAlignment="Left" Margin="20,67,0,0" 
+            <Image Name="image1" Grid.Column="0" Height="317" Width="400" HorizontalAlignment="Left" Margin="20,50,0,0" 
                Stretch="Fill" VerticalAlignment="Top" />
             <Canvas x:Name="BackPanel">
                 <Rectangle x:Name="selectionRectangle" Stroke="AliceBlue"  Fill="#220000FF" Visibility="Collapsed" />
             </Canvas>
-            <Button Content="&gt;&gt;" Height="23" HorizontalAlignment="Left" Margin="357,201,0,0" Name="Go"
-                VerticalAlignment="Top" Width="41" Click="Go_Click" FontWeight="Bold" Visibility="Visible" RenderTransformOrigin="-0.702,0.415"></Button>
-            <Image Grid.Column="1" Height="317" HorizontalAlignment="Left" Margin="408,67,0,0" Name="image2" 
-                   Stretch="Fill" VerticalAlignment="Top" Width="331" />
+            <Button Content="&gt;&gt;" Height="23" HorizontalAlignment="Left" Margin="450,200,0,0" Name="Go"
+                VerticalAlignment="Top" Width="41" Click="Go_Click" FontWeight="Bold" Visibility="Visible" ></Button>
+            <Image Grid.Column="1" Height="317" HorizontalAlignment="Left" Margin="500,50,0,0" Name="image2" 
+                   Stretch="Fill" VerticalAlignment="Top" Width="400" />
         </Grid>
 
 
