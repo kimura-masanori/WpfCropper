@@ -12,6 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Net.Http.Headers;
+using System.Net.Http;
+using System.Web;
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 
 namespace WpfCropper {
  
@@ -21,6 +28,9 @@ namespace WpfCropper {
   public partial class MainWindow : Window {
     private bool isDragging = false;
     private Point anchorPoint = new Point();
+    private Point image1Point = new Point();
+    private BitmapSource croppedImage;
+
     public MainWindow() {
       InitializeComponent();
       this.Gridimage1.MouseLeftButtonDown += image1_MouseLeftButtonDown;
@@ -41,6 +51,8 @@ namespace WpfCropper {
         if(selectionRectangle.Visibility != Visibility.Visible) {
           selectionRectangle.Visibility = Visibility.Visible;
         }
+
+        Go_Click(sender, new RoutedEventArgs());
       }
     }
 
@@ -48,20 +60,26 @@ namespace WpfCropper {
       if (isDragging) {
         double x = e.GetPosition(BackPanel).X;
         double y = e.GetPosition(BackPanel).Y;
+
+        if (x > (image1Point.X + this.Gridimage1.ColumnDefinitions[0].ActualWidth))
+          x = this.Gridimage1.ColumnDefinitions[0].ActualWidth;
+
         selectionRectangle.SetValue(Canvas.LeftProperty,Math.Min(x,anchorPoint.X));
         selectionRectangle.SetValue(Canvas.TopProperty,Math.Min(y,anchorPoint.Y));
+
         selectionRectangle.Width = Math.Abs(x - anchorPoint.X);
         selectionRectangle.Height = Math.Abs(y - anchorPoint.Y);
 
+        Console.WriteLine(x + ":" + (this.Gridimage1.ColumnDefinitions[0].ActualWidth));
+
         if (selectionRectangle.Visibility != Visibility.Visible)
           selectionRectangle.Visibility = Visibility.Visible;
+
       }
     }
 
     private void Go_Click(object sender, RoutedEventArgs e) {
       if(image1.Source != null) {
-        //Rect rect1 = new Rect(Canvas.GetLeft(selectionRectangle), Canvas.GetTop(selectionRectangle), 
-        //  selectionRectangle.Width, selectionRectangle.Height);
         var source = image1.Source as BitmapSource;
         Rect selectionRect = new Rect(selectionRectangle.RenderSize);
         var sourceRect = selectionRectangle.TransformToVisual(this.image1).TransformBounds(selectionRect);
@@ -74,29 +92,92 @@ namespace WpfCropper {
         rcFrom.Y = (int)sourceRect.Y;
         rcFrom.Width = (int)sourceRect.Width;
         rcFrom.Height = (int)sourceRect.Height;
-        BitmapSource bs = new CroppedBitmap(source,rcFrom);
-        image2.Source = bs;
+
+        croppedImage = new CroppedBitmap(source,rcFrom);
+        image2.Source = croppedImage;
+
+        if(croppedImage != null) {
+          this.btnOCR.IsEnabled = true;
+        }
+
       }
     }
 
     private void image1_MouseLeftButtonDown(object sender,MouseButtonEventArgs e) {
 
+      ResetRect();
+      
       if (isDragging == false) {
+        image1Point = image1.TransformToAncestor(Application.Current.MainWindow).Transform(new Point(0, 0));
+
         anchorPoint.X = e.GetPosition(BackPanel).X;
         anchorPoint.Y = e.GetPosition(BackPanel).Y;
+        selectionRectangle.Height = selectionRectangle.Width = 0;
+
         isDragging = true;
       }
-
     }
 
-    private void RestRect() {
+    private void ResetRect() {
       selectionRectangle.Visibility = Visibility.Collapsed;
       isDragging = false;
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e) {
       this.image1.Source = new BitmapImage( new Uri("./sampleimages/sample.jpeg",UriKind.Relative));
-      Console.WriteLine(image1.Source.ToString());
     }
+
+    private async void btnOCR_Click(object sender, RoutedEventArgs e)
+    {
+      this.Cursor = Cursors.Wait;
+     
+      var results = await MakeAnalysisRequest();
+
+      MessageBox.Show(results.FirstOrDefault(find => find.Contains("UPS")),"結果",
+        MessageBoxButton.OK,MessageBoxImage.Information);
+
+      this.Cursor = Cursors.Arrow;
+    }
+
+    private async Task<IEnumerable<string>> MakeAnalysisRequest() {
+
+      var client = new HttpClient();
+      var queryString = HttpUtility.ParseQueryString(string.Empty);
+
+      client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "36703bdde60d441fa0e386773fa4051f");
+
+      queryString["language"] = "unk";
+      queryString["detectOrientation"] = "true";
+      var uri = "https://westus.api.cognitive.microsoft.com/vision/v1.0/ocr?" + queryString;
+
+      HttpResponseMessage response;
+      byte[] byteData = ConvertJpegToByteArray(croppedImage);
+
+      using (var content = new ByteArrayContent(byteData)) {
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+        response = await client.PostAsync(uri, content);
+
+        string contentString = await response.Content.ReadAsStringAsync();
+
+        var convert = new JsonConverter(contentString);
+        return convert.GetJsonValues();
+      }
+
+    }
+
+    private byte[] ConvertJpegToByteArray(BitmapSource bs) {
+      JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+      encoder.QualityLevel = 100;
+
+      using (var stream = new MemoryStream()) {
+        encoder.Frames.Add(BitmapFrame.Create(bs));
+        encoder.Save(stream);
+        byte[] bits = stream.ToArray();
+        stream.Close();
+
+        return bits;
+      }
+    }   
   }
 }

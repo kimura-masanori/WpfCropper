@@ -8,16 +8,31 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="1000" Loaded="Window_Loaded">
 
-        <Grid x:Name="Gridimage1">
-            <Image Name="image1" Grid.Column="0" Height="317" Width="400" HorizontalAlignment="Left" Margin="20,50,0,0" 
-               Stretch="Fill" VerticalAlignment="Top" />
-            <Canvas x:Name="BackPanel">
+        <Grid x:Name="Gridimage1" Margin="10,20,10,30" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            
+            <Image Name="image1" Grid.Column="0" Height="317"  HorizontalAlignment="Left" 
+                   Stretch="Fill" VerticalAlignment="Top"  />
+            <Canvas x:Name="BackPanel" Grid.Column="0" Width="450">
                 <Rectangle x:Name="selectionRectangle" Stroke="AliceBlue"  Fill="#220000FF" Visibility="Collapsed" />
             </Canvas>
-            <Button Content="&gt;&gt;" Height="23" HorizontalAlignment="Left" Margin="450,200,0,0" Name="Go"
-                VerticalAlignment="Top" Width="41" Click="Go_Click" FontWeight="Bold" Visibility="Visible" ></Button>
-            <Image Grid.Column="1" Height="317" HorizontalAlignment="Left" Margin="500,50,0,0" Name="image2" 
-                   Stretch="Fill" VerticalAlignment="Top" Width="400" />
+            <StackPanel Grid.Column="1" Orientation="Vertical" Height="100" Margin="0">
+                <Button Content="&gt;&gt;" Height="23" HorizontalAlignment="Left" Name="Go"
+                        Width="41" Click="Go_Click" FontWeight="Bold" Visibility="Visible" ></Button>
+                <Button Content="OCR" HorizontalAlignment="Left"  Visibility="Visible" Height="23" 
+                        Width="41" Name="btnOCR" Click="btnOCR_Click" IsEnabled="False"  Margin="0,20,0,0"></Button>
+            </StackPanel>
+
+            <Image Grid.Column="2" Height="317" HorizontalAlignment="Left" Name="image2" 
+                       Stretch="Fill" VerticalAlignment="Top" />
         </Grid>
 
 
