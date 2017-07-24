@@ -19,7 +19,11 @@ namespace WpfCropper {
       JArray results = (JArray)rss["regions"][0]["lines"];
 
       foreach (var word in results) {
-        list.Add(word["words"][0]["text"].Value<string>());
+
+        JArray texts = (JArray)word["words"];
+        foreach (var text in texts ) {
+          list.Add(string.Concat(text["text"].Value<string>()," "));
+        }
       }
 
       return list;

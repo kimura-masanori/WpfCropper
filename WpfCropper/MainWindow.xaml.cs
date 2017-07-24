@@ -93,6 +93,9 @@ namespace WpfCropper {
         rcFrom.Width = (int)sourceRect.Width;
         rcFrom.Height = (int)sourceRect.Height;
 
+        if (!(rcFrom.X > 0 && rcFrom.Y > 0 && rcFrom.Width > 0 && rcFrom.Height > 0))
+          return;
+
         croppedImage = new CroppedBitmap(source,rcFrom);
         image2.Source = croppedImage;
 
@@ -124,7 +127,7 @@ namespace WpfCropper {
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e) {
-      this.image1.Source = new BitmapImage( new Uri("./sampleimages/sample.jpeg",UriKind.Relative));
+      this.image1.Source = new BitmapImage( new Uri("./sampleimages/sample.jpg",UriKind.Relative));
     }
 
     private async void btnOCR_Click(object sender, RoutedEventArgs e)
@@ -133,7 +136,13 @@ namespace WpfCropper {
      
       var results = await MakeAnalysisRequest();
 
-      MessageBox.Show(results.FirstOrDefault(find => find.Contains("UPS")),"結果",
+      var resultstring = new StringBuilder();
+
+      foreach(var result in results) {
+        resultstring.Append(result);
+      }
+
+      MessageBox.Show(resultstring.ToString(), "結果",
         MessageBoxButton.OK,MessageBoxImage.Information);
 
       this.Cursor = Cursors.Arrow;
