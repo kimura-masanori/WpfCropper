@@ -153,7 +153,7 @@ namespace WpfCropper {
       var client = new HttpClient();
       var queryString = HttpUtility.ParseQueryString(string.Empty);
 
-      client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "36703bdde60d441fa0e386773fa4051f");
+      client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "{key}");
 
       queryString["language"] = "unk";
       queryString["detectOrientation"] = "true";
